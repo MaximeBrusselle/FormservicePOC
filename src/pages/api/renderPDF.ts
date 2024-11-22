@@ -35,7 +35,11 @@ async function renderPDF(token: string, data: string) {
 		xdpTemplate: "testform/testtemplate2",
 		xmlData: data,
 	};
-	const response = await axios.post(`${getSecret("FORM_SERVICE_URL")!}/v1/adsRender/pdf?templateSource=storageName&Tracelevel=2`, payload, { headers });
+	const response = await axios.post(
+		`${getSecret("FORM_SERVICE_URL")!}/v1/adsRender/pdf?templateSource=storageName&Tracelevel=2`,
+		payload,
+		{ headers },
+	);
 
 	if (response.status !== 200) {
 		throw new Error(`Failed to render PDF: ${response.statusText}`);
@@ -46,30 +50,27 @@ async function renderPDF(token: string, data: string) {
 }
 
 export const POST: APIRoute = async ({ request }) => {
-    debugger;
-    const data = await request.formData();
-    const dataToSend = {
+	debugger;
+	const requestData = await request.json();
+	const options = {compact: true, ignoreComment: true, spaces: 4};
+	const dataToRender = convert.json2xml(requestData, options);
+	console.log(dataToRender);
 
-    }
-    console.log(request);
-    console.log("AAAAAAAAAAAAAA");
-    
-    
-    if (false) {
-        return new Response(
-            JSON.stringify({
-                pdfBlob: "",
-                message: "Missing required fields",
-            }),
-            { status: 400 },
-        );
-    }
-    // Do something with the data, then return a success response
-    return new Response(
-        JSON.stringify({
-            pdfBlob: "",
-            message: "Success!",
-        }),
-        { status: 200 },
-    );
+	if (!dataToRender || dataToRender === "") {
+		return new Response(
+			JSON.stringify({
+				pdfBlob: "",
+				message: "Missing required fields",
+			}),
+			{ status: 400 },
+		);
+	}
+	// Do something with the data, then return a success response
+	return new Response(
+		JSON.stringify({
+			pdfBlob: "",
+			message: "Success!",
+		}),
+		{ status: 200 },
+	);
 };

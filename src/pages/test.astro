@@ -1,22 +1,16 @@
 ---
-import { getEntry } from "astro:content";
-import type { CustomerData } from "../../types/Customer";
-import Layout from "../../layouts/Layout.astro";
-import Form from "../../components/Form.tsx";
-
-const { customerName } = Astro.params;
-const customer = await getEntry("customers", customerName as string);
-if (!customer) {
-    throw new Error(`Customer with name ${customerName} not found`);
-}
-const customerData: CustomerData = customer?.data;
+import { TestForm } from "../components/Form2.tsx";
+import Layout from "../layouts/Layout.astro";
+import ShowReturn from "../components/ShowReturn.tsx";
 ---
 
-<Layout title={customerData.name}>
-    <main class="text-white">
-        <h1>Worklist for <span class="text-gradient">{customerData.name}</span></h1>
-        <p>This is the page for customer: <strong>{customerData.name}</strong>.</p>
-        <Form client:load />
+<Layout title="Welcome to Form service by Adobe">
+    <main>
+        <h1>Test</h1>
+        <div class="flex flex-row gap-2">
+            <TestForm client:load />
+            <ShowReturn client:load />
+        </div>
     </main>
 </Layout>
 <style>
@@ -24,7 +18,6 @@ const customerData: CustomerData = customer?.data;
         margin: auto;
         padding: 1rem;
         max-width: calc(100% - 2rem);
-        color: white;
         font-size: 20px;
         line-height: 1.6;
     }
@@ -43,6 +36,7 @@ const customerData: CustomerData = customer?.data;
         line-height: 1;
         text-align: center;
         margin-bottom: 1em;
+        color: white;
     }
     .text-gradient {
         background-image: var(--accent-gradient);
