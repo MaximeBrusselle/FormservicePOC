@@ -1,0 +1,28 @@
+export type FormData = {
+	participant: string;
+	createdOn: string;
+	courseType: string;
+	courseName: string;
+	courseCost: number;
+	costCurrency: string;
+	onlyStartEndDates: boolean;
+	courseStartDate: string;
+	courseEndDate: string;
+	durationDays: number;
+	durationHours: number;
+	schoolName: string;
+	otherSchoolName: string;
+	programme: string;
+	otherProgramme: string;
+	grantCertificate: boolean;
+	SAQCode: string;
+	courseTheme: string;
+	contribution: number;
+	allocatedWorkdays: number;
+	comment: string;
+	readAndAccepted: boolean;
+	attachments: string[];
+	securityDomain: string;
+	attendanceEmail: boolean;
+	additionalComment: string;
+};

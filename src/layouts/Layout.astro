@@ -4,6 +4,9 @@ interface Props {
 }
 
 const { title } = Astro.props;
+const currentPath = Astro.url.pathname;
+const segments = currentPath.split('/').filter(Boolean);
+const isBaseUrl = currentPath === '/';
 ---
 
 <!doctype html>
@@ -17,7 +20,28 @@ const { title } = Astro.props;
 		<title>{title}</title>
 	</head>
 	<body>
-		<slot />
+		<div class="p-4">
+			{!isBaseUrl && (
+				<div class="flex items-center gap-4 mb-4">
+					<a href="javascript:history.back()" class="btn btn-ghost">
+						← Back
+					</a>
+					<div class="breadcrumbs text-sm">
+						<ul>
+							<li><a href="/">Home</a></li>
+							{segments.map((segment, index) => (
+								<li>
+									<a href={`/${segments.slice(0, index + 1).join('/')}`}>
+										{segment.charAt(0).toUpperCase() + segment.slice(1)}
+									</a>
+								</li>
+							))}
+						</ul>
+					</div>
+				</div>
+			)}
+			<slot />
+		</div>
 	</body>
 </html>
 <style is:global>
