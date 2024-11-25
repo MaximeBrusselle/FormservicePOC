@@ -1,4 +1,7 @@
 ---
+import Toolbar from "@/components/Toolbar.astro";
+import { getLangFromUrl, useTranslatedPath } from "../i18n/utils";
+
 interface Props {
 	title: string;
 }
@@ -6,11 +9,13 @@ interface Props {
 const { title } = Astro.props;
 const currentPath = Astro.url.pathname;
 const segments = currentPath.split("/").filter(Boolean);
-const isBaseUrl = currentPath === "/";
+const isBaseUrl = currentPath === "/" || currentPath === "/nl_BE/";
+const lang = getLangFromUrl(Astro.url);
+const translatePath = useTranslatedPath(lang);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="description" content="Astro description" />
@@ -21,22 +26,25 @@ const isBaseUrl = currentPath === "/";
 	</head>
 	<body>
 		<div class="p-4">
+			<Toolbar />
 			{
 				!isBaseUrl && (
-					<div class="flex items-center gap-4 mb-4">
+					<div class="flex items-center gap-4">
 						<a href="javascript:history.back()" class="btn btn-ghost">
 							← Back
 						</a>
 						<div class="breadcrumbs text-sm">
 							<ul>
 								<li>
-									<a href="/">Home</a>
+									<a href={translatePath("/", lang)}>Home</a>
 								</li>
-								{segments.map((segment, index) => (
-									<li>
-										<a href={`/${segments.slice(0, index + 1).join("/")}`}>{segment.charAt(0).toUpperCase() + segment.slice(1)}</a>
-									</li>
-								))}
+								{segments
+									.filter((segment) => segment !== "nl_BE")
+									.map((segment, index) => (
+										<li>
+											<a href={translatePath(`/${segments.slice(0, index + 1).join("/")}`, lang)}>{segment.charAt(0).toUpperCase() + segment.slice(1)}</a>
+										</li>
+									))}
 							</ul>
 						</div>
 					</div>
@@ -51,25 +59,40 @@ const isBaseUrl = currentPath === "/";
 		--accent: 136, 58, 234;
 		--accent-light: 224, 204, 250;
 		--accent-dark: 49, 10, 101;
-		--accent-gradient: linear-gradient(45deg, rgb(var(--accent)), rgb(var(--accent-light)) 30%, white 60%);
+		--accent-gradient-light: linear-gradient(45deg, rgb(var(--accent)), rgb(var(--accent)) 20%, rgb(var(--accent-light)) 50%, rgb(var(--accent)) 80%);
+		--accent-gradient-dark: linear-gradient(45deg, rgb(var(--accent)), rgb(var(--accent-light)) 30%, rgb(var(--accent-light)) 60%);
 	}
+
+	[data-theme='light'] {
+		--current-gradient: var(--accent-gradient-light);
+		--instructions-bg: linear-gradient(rgba(var(--accent-light), 66%), rgba(var(--accent-light), 33%));
+		--instructions-border: rgba(var(--accent), 25%);
+		--instructions-code-bg: rgba(var(--accent), 12%);
+		--instructions-code-color: rgb(var(--accent));
+		--instructions-strong-color: rgb(var(--accent));
+	}
+
+	[data-theme='dark'] {
+		--current-gradient: var(--accent-gradient-dark);
+		--instructions-bg: linear-gradient(rgba(var(--accent-dark), 66%), rgba(var(--accent-dark), 33%));
+		--instructions-border: rgba(var(--accent-light), 25%);
+		--instructions-code-bg: rgba(var(--accent-light), 12%);
+		--instructions-code-color: rgb(var(--accent-light));
+		--instructions-strong-color: rgb(var(--accent-light));
+	}
+
 	html {
 		font-family: system-ui, sans-serif;
 		background: #13151a;
 	}
+
 	code {
-		font-family:
-			Menlo,
-			Monaco,
-			Lucida Console,
-			Liberation Mono,
-			DejaVu Sans Mono,
-			Bitstream Vera Sans Mono,
-			Courier New,
-			monospace;
+		font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
+			Bitstream Vera Sans Mono, Courier New, monospace;
 	}
+
 	.text-gradient {
-		background-image: var(--accent-gradient);
+		background-image: var(--current-gradient);
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
 		background-size: 400%;
@@ -78,20 +101,22 @@ const isBaseUrl = currentPath === "/";
 
 	.instructions {
 		margin-bottom: 2rem;
-		border: 1px solid rgba(var(--accent-light), 25%);
-		background: linear-gradient(rgba(var(--accent-dark), 66%), rgba(var(--accent-dark), 33%));
+		border: 1px solid var(--instructions-border);
+		background: var(--instructions-bg);
 		padding: 1.5rem;
 		border-radius: 8px;
 	}
+
 	.instructions code {
 		font-size: 0.8em;
 		font-weight: bold;
-		background: rgba(var(--accent-light), 12%);
-		color: rgb(var(--accent-light));
+		background: var(--instructions-code-bg);
+		color: var(--instructions-code-color);
 		border-radius: 4px;
 		padding: 0.3em 0.4em;
 	}
+
 	.instructions strong {
-		color: rgb(var(--accent-light));
+		color: var(--instructions-strong-color);
 	}
 </style>

@@ -22,7 +22,7 @@ export default defineConfig({
                   context: "server",
                   access: "secret",
               }),
-              CLIENT_SECRET: envField.string({
+              CLIENT_SECRET_BASE64: envField.string({
                   context: "server",
                   access: "secret",
               }),

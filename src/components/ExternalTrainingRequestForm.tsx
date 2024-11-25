@@ -5,13 +5,18 @@ import { dataReceived, pdfData, hasError } from "@/PDFstore";
 import type { FormData } from "@/types/FormData";
 import toast, { Toaster } from "react-hot-toast";
 import type { CustomerData } from "@/types/Customer";
+import { getLangFromUrl, useTranslations } from "@/i18n/utils";
 
 interface TestFormProps {
 	customerData: CustomerData;
 	formData: FormData;
+	url: URL;
 }
 
-export function ExternalTrainingRequestForm({ customerData, formData }: TestFormProps) {
+export function ExternalTrainingRequestForm({ customerData, formData, url }: TestFormProps) {
+	const lang = getLangFromUrl(url);
+	const t = useTranslations(lang);
+
 	const validationSchema = z.object({
 		participant: z.string().min(1),
 		createdOn: z.string().date().default(new Date().toISOString().split("T")[0]).optional(),
@@ -53,10 +58,10 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 	});
 
 	async function submitForm(formData: FormData) {
-		const toastId = toast.loading("Processing your request...");
+		const toastId = toast.loading(t("etrForm.processing"));
 		try {
 			const dataToSend = {
-				language: "en_US",
+				language: lang,
 				customerData,
 				formData: {
 					[customerData.name]: formData,
@@ -80,7 +85,7 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 				toast.error(data.message, { id: toastId });
 			}
 		} catch (error) {
-			toast.error("An error occurred while processing your request", {
+			toast.error(t("etrForm.unexpectedError"), {
 				id: toastId,
 			});
 		}
@@ -90,40 +95,40 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 		try {
 			if (formData) {
 				reset(formData);
-				toast.success("Form data loaded successfully");
+				toast.success(t("etrForm.formDataLoaded"));
 			}
 		} catch (error) {
-			toast.error("Error loading form data");
+			toast.error(t("etrForm.errorLoadingFormData"));
 		}
 	}
 
 	return (
 		<form
-			className="flex flex-col w-full max-w-[50vw] mx-auto p-6 space-y-8 bg-base-200 rounded-lg shadow-xl [&_span.error]:text-error [&_span.error]:text-sm [&_span.label-text]:text-white [&_input]:text-gray-100 [&_select]:text-gray-100 [&_textarea]:text-gray-100 relative"
+			className="flex flex-col w-full max-w-[50vw] mx-auto p-6 space-y-8 bg-[#f5f5f5] dark:bg-base-200 rounded-xl shadow-xl [&_span.error]:text-error [&_span.error]:text-sm relative"
 			onSubmit={handleSubmit(submitForm, (errors) => {
 				if (Object.keys(errors).length > 0) {
-					toast.error("Please fill in all required fields correctly");
+					toast.error(t("etrForm.pleaseFillInAllRequiredFieldsCorrectly"));
 				}
 			})}
 		>
 			{/* PARTICIPANT */}
-			<div className="border-b-2 border-gray-700 pb-6">
+			<div className="border-b-2 border-gray-200 dark:border-gray-700 pb-6">
 				<div className="flex justify-between items-center mb-6">
-					<h2 className="text-2xl font-bold text-base-content">
-						Participant
+					<h2 className="text-2xl font-bold text-gray-900 dark:text-base-content">
+						{t("etrForm.participant")}
 					</h2>
 					<button
 						type="button"
 						onClick={fillFormData}
-						className="btn bg-indigo-700 hover:bg-indigo-600 text-white border-none"
+						className="btn bg-indigo-600 hover:bg-indigo-500 dark:bg-indigo-700 dark:hover:bg-indigo-600 text-white border-none"
 					>
-						Fill in data
+						{t("etrForm.fillInData")}
 					</button>
 				</div>
 				<div className="form-control space-y-3">
 					<label htmlFor="participant" className="label">
-						<span className="label-text text-base-content text-lg">
-							Request for user{" "}
+						<span className="label-text text-gray-900 dark:text-base-content text-lg">
+							{t("etrForm.requestForUser")}
 							<span className="text-error">*</span>
 						</span>
 					</label>
@@ -135,9 +140,9 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 					<select
 						id="participant"
 						{...register("participant")}
-						className="select select-bordered w-full"
+						className="select select-bordered w-full text-gray-900 dark:text-base-content"
 					>
-						<option value="">Select a participant</option>
+						<option value="">{t("etrForm.selectParticipant")}</option>
 						<option value="John Doe">John Doe</option>
 						<option value="Jane Smith">Jane Smith</option>
 						<option value="Bob Wilson">Bob Wilson</option>
@@ -147,15 +152,15 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 			</div>
 
 			{/* REQUEST DETAILS */}
-			<div className="border-b-2 border-gray-700 pb-6">
-				<h2 className="text-2xl font-bold mb-6 text-base-content">
-					Request Details
+			<div className="border-b-2 border-gray-200 dark:border-gray-700 pb-6">
+				<h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-base-content">
+					{t("etrForm.requestDetails")}
 				</h2>
 
 				<div className="form-control space-y-3">
 					<label htmlFor="createdOn" className="label">
-						<span className="label-text text-base-content text-lg">
-							Created On <span className="text-error">*</span>
+						<span className="label-text text-gray-900 dark:text-base-content text-lg">
+							{t("etrForm.createdOn")} <span className="text-error">*</span>
 						</span>
 					</label>
 					{errors?.createdOn && (
@@ -179,9 +184,8 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 
 				<div className="form-control space-y-3 mt-4">
 					<label htmlFor="courseType" className="label">
-						<span className="label-text text-base-content text-lg">
-							Course / Programme / Event type{" "}
-							<span className="text-error">*</span>
+						<span className="label-text text-gray-900 dark:text-base-content text-lg">
+							{t("etrForm.courseType")} <span className="text-error">*</span>
 						</span>
 					</label>
 					{errors?.courseType && (
@@ -199,9 +203,8 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 
 				<div className="form-control space-y-3 mt-4">
 					<label htmlFor="courseName" className="label">
-						<span className="label-text text-base-content text-lg">
-							Course / Programme / Event name{" "}
-							<span className="text-error">*</span>
+						<span className="label-text text-gray-900 dark:text-base-content text-lg">
+							{t("etrForm.courseName")} <span className="text-error">*</span>
 						</span>
 					</label>
 					{errors?.courseName && (
@@ -220,9 +223,8 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 				<div className="grid grid-cols-2 gap-6 mt-4">
 					<div className="form-control space-y-3">
 						<label htmlFor="courseCost" className="label">
-							<span className="label-text text-base-content text-lg">
-								Course / Programme / Event cost per participant{" "}
-								<span className="text-error">*</span>
+							<span className="label-text text-gray-900 dark:text-base-content text-lg">
+								{t("etrForm.courseCostPerParticipant")} <span className="text-error">*</span>
 							</span>
 						</label>
 						{errors?.courseCost && (
@@ -240,8 +242,8 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 
 					<div className="form-control space-y-3">
 						<label htmlFor="costCurrency" className="label">
-							<span className="label-text text-base-content text-lg">
-								Currency <span className="text-error">*</span>
+							<span className="label-text text-gray-900 dark:text-base-content text-lg">
+								{t("etrForm.currency")} <span className="text-error">*</span>
 							</span>
 						</label>
 						{errors?.costCurrency && (
@@ -260,8 +262,8 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 
 				<div className="form-control mt-4">
 					<label className="label cursor-pointer">
-						<span className="label-text text-base-content text-lg">
-							Only use start/end date
+						<span className="label-text text-gray-900 dark:text-base-content text-lg">
+							{t("etrForm.onlyUseStartEndDate")}
 						</span>
 						<input
 							type="checkbox"
@@ -276,8 +278,8 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 				<div className="grid grid-cols-2 gap-6 mt-4">
 					<div className="form-control space-y-3">
 						<label htmlFor="courseStartDate" className="label">
-							<span className="label-text text-base-content text-lg">
-								Course / Programme / Event start date
+							<span className="label-text text-gray-900 dark:text-base-content text-lg">
+								{t("etrForm.courseStartDate")}
 							</span>
 						</label>
 						{errors?.courseStartDate && (
@@ -295,8 +297,8 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 
 					<div className="form-control space-y-3">
 						<label htmlFor="courseEndDate" className="label">
-							<span className="label-text text-base-content text-lg">
-								Course / Programme / Event end date
+							<span className="label-text text-gray-900 dark:text-base-content text-lg">
+								{t("etrForm.courseEndDate")}
 							</span>
 						</label>
 						{errors?.courseEndDate && (
@@ -316,8 +318,8 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 				<div className="grid grid-cols-2 gap-6 mt-4">
 					<div className="form-control space-y-3">
 						<label htmlFor="durationDays" className="label">
-							<span className="label-text text-base-content text-lg">
-								Duration in days (total)
+							<span className="label-text text-gray-900 dark:text-base-content text-lg">
+								{t("etrForm.durationInDays")}
 							</span>
 						</label>
 						{errors?.durationDays && (
@@ -337,8 +339,8 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 
 					<div className="form-control space-y-3">
 						<label htmlFor="durationHours" className="label">
-							<span className="label-text text-base-content text-lg">
-								Duration in hours (total)
+							<span className="label-text text-gray-900 dark:text-base-content text-lg">
+								{t("etrForm.durationInHours")}
 							</span>
 						</label>
 						{errors?.durationHours && (
@@ -358,8 +360,8 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 				</div>
 				<div className="form-control space-y-3 mt-4">
 					<label className="label">
-						<span className="label-text text-base-content text-lg">
-							School / Provider List
+						<span className="label-text text-gray-900 dark:text-base-content text-lg">
+							{t("etrForm.schoolProviderList")}
 						</span>
 					</label>
 					<a
@@ -372,9 +374,8 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 
 				<div className="form-control space-y-3 mt-4">
 					<label htmlFor="schoolName" className="label">
-						<span className="label-text text-base-content text-lg">
-							School / Provider name{" "}
-							<span className="text-error">*</span>
+						<span className="label-text text-gray-900 dark:text-base-content text-lg">
+							{t("etrForm.schoolName")} <span className="text-error">*</span>
 						</span>
 					</label>
 					{errors?.schoolName && (
@@ -392,8 +393,8 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 
 				<div className="form-control space-y-3 mt-4">
 					<label htmlFor="otherSchoolName" className="label">
-						<span className="label-text text-base-content text-lg">
-							Other School / Provider name
+						<span className="label-text text-gray-900 dark:text-base-content text-lg">
+							{t("etrForm.otherSchoolName")}
 						</span>
 					</label>
 					{errors?.otherSchoolName && (
@@ -411,9 +412,8 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 
 				<div className="form-control space-y-3 mt-4">
 					<label htmlFor="programme" className="label">
-						<span className="label-text text-base-content text-lg">
-							Programme / Course{" "}
-							<span className="text-error">*</span>
+						<span className="label-text text-gray-900 dark:text-base-content text-lg">
+							{t("etrForm.programme")} <span className="text-error">*</span>
 						</span>
 					</label>
 					{errors?.programme && (
@@ -431,8 +431,8 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 
 				<div className="form-control space-y-3 mt-4">
 					<label htmlFor="otherProgramme" className="label">
-						<span className="label-text text-base-content text-lg">
-							Other Programme / Course
+						<span className="label-text text-gray-900 dark:text-base-content text-lg">
+							{t("etrForm.otherProgramme")}
 						</span>
 					</label>
 					{errors?.otherProgramme && (
@@ -450,8 +450,8 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 
 				<div className="form-control mt-4">
 					<label className="label cursor-pointer">
-						<span className="label-text text-base-content text-lg">
-							Grants a professional certification
+						<span className="label-text text-gray-900 dark:text-base-content text-lg">
+							{t("etrForm.grantCertificate")}
 						</span>
 						<input
 							type="checkbox"
@@ -463,8 +463,8 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 
 				<div className="form-control space-y-3 mt-4">
 					<label htmlFor="SAQCode" className="label">
-						<span className="label-text text-base-content text-lg">
-							SAQ Code
+						<span className="label-text text-gray-900 dark:text-base-content text-lg">
+							{t("etrForm.SAQCode")}
 						</span>
 					</label>
 					{errors?.SAQCode && (
@@ -480,8 +480,8 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 
 				<div className="form-control space-y-3 mt-4">
 					<label htmlFor="courseTheme" className="label">
-						<span className="label-text text-base-content text-lg">
-							Course Theme <span className="text-error">*</span>
+						<span className="label-text text-gray-900 dark:text-base-content text-lg">
+							{t("etrForm.courseTheme")} <span className="text-error">*</span>
 						</span>
 					</label>
 					{errors?.courseTheme && (
@@ -500,8 +500,8 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 				<div className="grid grid-cols-2 gap-6 mt-4">
 					<div className="form-control space-y-3">
 						<label htmlFor="contribution" className="label">
-							<span className="label-text text-base-content text-lg">
-								% of contribution
+							<span className="label-text text-gray-900 dark:text-base-content text-lg">
+								{t("etrForm.contribution")}
 							</span>
 						</label>
 						{errors?.contribution && (
@@ -521,8 +521,8 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 
 					<div className="form-control space-y-3">
 						<label htmlFor="allocatedWorkdays" className="label">
-							<span className="label-text text-base-content text-lg">
-								# of working days allocated for exam preparation
+							<span className="label-text text-gray-900 dark:text-base-content text-lg">
+								{t("etrForm.allocatedWorkdays")}
 							</span>
 						</label>
 						{errors?.allocatedWorkdays && (
@@ -543,8 +543,8 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 
 				<div className="form-control space-y-3 mt-4">
 					<label htmlFor="comment" className="label">
-						<span className="label-text text-base-content text-lg">
-							Comment
+						<span className="label-text text-gray-900 dark:text-base-content text-lg">
+							{t("etrForm.comment")}
 						</span>
 					</label>
 					{errors?.comment && (
@@ -553,26 +553,20 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 					<div className="relative">
 						<textarea
 							id="comment"
-							{...register("comment", {
-								onChange: (e) => {
-									const remaining =
-										700 - e.target.value.length;
-									e.target.nextElementSibling.textContent = `${remaining} characters remaining`;
-								},
-							})}
+							{...register("comment")}
 							className="textarea textarea-bordered h-24 w-full"
 						/>
-						<span className="absolute bottom-2 right-2 text-sm text-base-content">
-							700 characters remaining
+						<span className="absolute bottom-2 right-2 text-sm text-gray-900 dark:text-base-content">
+							{t("etrForm.charactersRemaining")}
 						</span>
 					</div>
 				</div>
 			</div>
 
 			{/* TRAINING AGREEMENT */}
-			<div className="border-b-2 border-gray-700 pb-6">
-				<h2 className="text-2xl font-bold mb-6 text-base-content">
-					Training Agreement
+			<div className="border-b-2 border-gray-200 dark:border-gray-700 pb-6">
+				<h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-base-content">
+					{t("etrForm.trainingAgreement")}
 				</h2>
 
 				<div className="space-y-3 mb-6">
@@ -582,7 +576,7 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 							href="https://training-policy.com"
 							className="link link-primary"
 						>
-							External Training Guidelines
+							{t("etrForm.externalTrainingGuidelines")}
 						</a>
 					</div>
 					<div>
@@ -591,7 +585,7 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 							href="https://terms-conditions.com"
 							className="link link-primary"
 						>
-							Directives Training External
+							{t("etrForm.directivesTrainingExternal")}
 						</a>
 					</div>
 					<div>
@@ -600,7 +594,7 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 							href="https://privacy-policy.com"
 							className="link link-primary"
 						>
-							External training agreement
+							{t("etrForm.externalTrainingAgreement")}
 						</a>
 					</div>
 					<div>
@@ -609,15 +603,15 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 							href="https://code-conduct.com"
 							className="link link-primary"
 						>
-							Convention of external formation
+							{t("etrForm.conventionExternalFormation")}
 						</a>
 					</div>
 				</div>
 
 				<div className="form-control">
 					<label className="label cursor-pointer">
-						<span className="label-text text-base-content text-lg">
-							I have read and accepted all terms{" "}
+						<span className="label-text text-gray-900 dark:text-base-content text-lg">
+							{t("etrForm.readAndAccepted")}
 							<span className="text-error">*</span>
 						</span>
 						<input
@@ -630,15 +624,15 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 			</div>
 
 			{/* ATTACHMENTS */}
-			<div className="border-b-2 border-gray-700 pb-6">
-				<h2 className="text-2xl font-bold mb-6 text-base-content">
-					Attachments
+			<div className="border-b-2 border-gray-200 dark:border-gray-700 pb-6">
+				<h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-base-content">
+					{t("etrForm.attachments")}
 				</h2>
 				{/* Note: You'll need to implement file upload functionality here */}
 				<div className="form-control space-y-3">
 					<label htmlFor="attachments" className="label">
-						<span className="label-text text-base-content text-lg">
-							Upload Documents
+						<span className="label-text text-gray-900 dark:text-base-content text-lg">
+							{t("etrForm.uploadDocuments")}
 						</span>
 					</label>
 					{errors?.attachments && (
@@ -656,16 +650,15 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 			</div>
 
 			{/* TRAINING ADMIN */}
-			<div className="border-b-2 border-gray-700 pb-6">
-				<h2 className="text-2xl font-bold mb-6 text-base-content">
-					Training Admin
+			<div className="border-b-2 border-gray-200 dark:border-gray-700 pb-6">
+				<h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-base-content">
+					{t("etrForm.trainingAdmin")}
 				</h2>
 
 				<div className="form-control space-y-3">
 					<label htmlFor="securityDomain" className="label">
-						<span className="label-text text-base-content text-lg">
-							Security Domain{" "}
-							<span className="text-error">*</span>
+						<span className="label-text text-gray-900 dark:text-base-content text-lg">
+							{t("etrForm.securityDomain")} <span className="text-error">*</span>
 						</span>
 					</label>
 					{errors?.securityDomain && (
@@ -683,8 +676,8 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 
 				<div className="form-control mt-4">
 					<label className="label cursor-pointer">
-						<span className="label-text text-base-content text-lg">
-							Attendance Email
+						<span className="label-text text-gray-900 dark:text-base-content text-lg">
+							{t("etrForm.attendanceEmail")}
 						</span>
 						<input
 							type="checkbox"
@@ -696,8 +689,8 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 
 				<div className="form-control space-y-3 mt-4">
 					<label htmlFor="additionalComment" className="label">
-						<span className="label-text text-base-content text-lg">
-							Additional Comment
+						<span className="label-text text-gray-900 dark:text-base-content text-lg">
+							{t("etrForm.additionalComment")}
 						</span>
 					</label>
 					{errors?.additionalComment && (
@@ -708,24 +701,18 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 					<div className="relative">
 						<textarea
 							id="additionalComment"
-							{...register("additionalComment", {
-								onChange: (e) => {
-									const remaining =
-										700 - e.target.value.length;
-									e.target.nextElementSibling.textContent = `${remaining} characters remaining`;
-								},
-							})}
+							{...register("additionalComment")}
 							className="textarea textarea-bordered h-24 w-full"
 						/>
-						<span className="absolute bottom-2 right-2 text-sm text-base-content">
-							700 characters remaining
+						<span className="absolute bottom-2 right-2 text-sm text-gray-900 dark:text-base-content">
+							{t("etrForm.charactersRemaining")}
 						</span>
 					</div>
 				</div>
 			</div>
 
 			<button type="submit" className="btn btn-primary w-full text-white">
-				Submit
+				{t("etrForm.submit")}
 			</button>
 			<Toaster />
 		</form>

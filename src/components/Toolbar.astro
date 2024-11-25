@@ -1,0 +1,27 @@
+---
+import { languages } from "../i18n/ui";
+import { getLangFromUrl, useTranslatedPath } from "../i18n/utils";
+import ThemeSelector from "./ThemeSelector";
+
+const lang = getLangFromUrl(Astro.url);
+const translatePath = useTranslatedPath(lang);
+
+const currentPath = Astro.url.pathname;
+const pathWithoutLang = currentPath.replace(/^\/(nl_BE)/, "") || "/";
+---
+
+<div class="absolute top-4 right-4 flex gap-2">
+	<ThemeSelector client:load />
+
+	<ul class="menu menu-horizontal bg-base-200 rounded-box">
+		{
+			Object.entries(languages).map(([code, label]) => (
+				<li>
+					<a href={translatePath(pathWithoutLang, code)} class={code === lang ? "active" : ""}>
+						{label}
+					</a>
+				</li>
+			))
+		}
+	</ul>
+</div>
