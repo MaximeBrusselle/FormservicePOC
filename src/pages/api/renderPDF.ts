@@ -1,7 +1,6 @@
 import type { APIRoute } from "astro";
 import base64 from "base64-js";
 import convert from "xml-js";
-import axios from "axios";
 import { getSecret } from "astro:env/server";
 import type { CustomerData } from "@/types/Customer";
 import type { FormData } from "@/types/FormData";
@@ -15,48 +14,54 @@ interface RequestData {
 }
 
 async function getAccessToken() {
+	const clientSecretBase64 = getSecret("CLIENT_SECRET_BASE64")!;
+	const clientSecret = Buffer.from(clientSecretBase64, 'base64').toString('utf-8');
+	
 	const payload = new URLSearchParams({
 		grant_type: "client_credentials",
 		client_id: getSecret("CLIENT_ID")!,
-		client_secret: getSecret("CLIENT_SECRET")!,
+		client_secret: clientSecret,
+	});
+	const url = getSecret("TOKEN_URL")!;
+	
+	const response = await fetch(url, {
+		method: "POST",
+		body: payload,
 	});
 
-	const response = await axios.post(getSecret("TOKEN_URL")!, payload, {
-		headers: {
-			"Content-Type": "application/x-www-form-urlencoded",
-		},
-	});
-
-	if (!response.status || response.status !== 200) {
+	if (!response.ok) {
 		throw new Error(`Failed to get access token: ${response.statusText}`);
 	}
 
-	const tokenData = await response.data();
+	const tokenData = await response.json();
 	return tokenData.access_token;
 }
 
-async function renderPDF(token: string, data: string) {
+async function renderPDF(token: string, data: string, templateName: string) {
 	const headers = {
 		Authorization: `Bearer ${token}`,
 		"Content-Type": "application/json",
 		"Content-Encoding": "utf-8",
 	};
+
 	const payload = {
-		xdpTemplate: "testform/testtemplate2",
+		xdpTemplate: templateName,
 		xmlData: data,
 	};
-	const response = await axios.post(
-		`${getSecret("FORM_SERVICE_URL")!}/v1/adsRender/pdf?templateSource=storageName&Tracelevel=2`,
-		payload,
-		{ headers },
-	);
 
-	if (response.status !== 200) {
+	const response = await fetch(`${getSecret("FORM_SERVICE_URL")}/v1/adsRender/pdf?templateSource=storageName&Tracelevel=2`, {
+		method: "POST",
+		headers,
+		body: JSON.stringify(payload),
+	});
+
+	if (!response.ok) {
 		throw new Error(`Failed to render PDF: ${response.statusText}`);
 	}
 
-	const responseData = response.data.fileContent;
-	return responseData;
+	const responseData = await response.json();
+
+	return responseData.fileContent;
 }
 
 export const POST: APIRoute = async ({ request }) => {
@@ -74,41 +79,30 @@ export const POST: APIRoute = async ({ request }) => {
 			);
 		}
 
-		// Get access token
-		// const accessToken = await getAccessToken();
-
 		// Convert data to XML
 		const options = { compact: true, ignoreComment: true, spaces: 4 };
 		const templateName = `${customerData.name}/${language}`;
 		const dataToRender = convert.json2xml(JSON.stringify(formData), options);
+		const base64Data = base64.fromByteArray(Buffer.from(dataToRender, "utf-8"));
 
-		if (!dataToRender || dataToRender === "") {
+		const accessToken = await getAccessToken();
+		const pdfBuffer = await renderPDF(accessToken, base64Data, templateName);
+
+		
+		if (!pdfBuffer) {
 			return new Response(
 				JSON.stringify({
 					pdfBlob: "",
-					message: "Failed to convert data to XML",
+					message: "Failed to render PDF",
 				}),
-				{ status: 400 },
+				{ status: 500 },
 			);
 		}
-
-		// Render PDF
-		// const pdfBlob = await renderPDF(accessToken, dataToRender);
-
-		// if (!pdfBlob) {
-			// return new Response(
-			// 	JSON.stringify({
-			// 		pdfBlob: "",
-			// 		message: "Failed to render PDF",
-			// 	}),
-			// 	{ status: 500 },
-			// );
-		// }
 
 		// Return success response with PDF blob
 		return new Response(
 			JSON.stringify({
-				pdfBlob: "",
+				pdfBlob: pdfBuffer,
 				message: "PDF generated successfully!",
 			}),
 			{ status: 200 },

@@ -56,7 +56,7 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 		const toastId = toast.loading("Processing your request...");
 		try {
 			const dataToSend = {
-				language: navigator.language,
+				language: "en_US",
 				customerData,
 				formData: {
 					[customerData.name]: formData,
@@ -72,6 +72,7 @@ export function ExternalTrainingRequestForm({ customerData, formData }: TestForm
 			pdfData.set(data.pdfBlob);
 			hasError.set(response.status !== 200);
 			window.scrollTo({ top: 0, behavior: 'smooth' });
+			console.log(data);
 
 			if (response.status === 200) {
 				toast.success(data.message, { id: toastId });

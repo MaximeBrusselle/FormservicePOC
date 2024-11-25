@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" 
+           elementFormDefault="qualified" 
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xfa="http://www.xfa.org/schema/xfa-data/1.0/">
+    
+    <xs:element name="Pictet">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="participant" type="xs:string"/>
+                <xs:element name="createdOn" type="xs:date"/>
+                <xs:element name="courseType" type="xs:string"/>
+                <xs:element name="courseName" type="xs:string"/>
+                <xs:element name="courseCost" type="xs:decimal"/>
+                <xs:element name="costCurrency" type="xs:string"/>
+                <xs:element name="onlyStartEndDates" type="xs:boolean"/>
+                <xs:element name="courseStartDate" type="xs:date"/>
+                <xs:element name="courseEndDate" type="xs:date"/>
+                <xs:element name="durationDays" type="xs:integer"/>
+                <xs:element name="durationHours" type="xs:integer"/>
+                <xs:element name="schoolName" type="xs:string"/>
+                <xs:element name="otherSchoolName" type="xs:string" minOccurs="0"/>
+                <xs:element name="programme" type="xs:string"/>
+                <xs:element name="otherProgramme" type="xs:string" minOccurs="0"/>
+                <xs:element name="grantCertificate" type="xs:boolean"/>
+                <xs:element name="SAQCode" type="xs:string"/>
+                <xs:element name="courseTheme" type="xs:string"/>
+                <xs:element name="contribution" type="xs:decimal"/>
+                <xs:element name="allocatedWorkdays" type="xs:integer"/>
+                <xs:element name="comment" type="xs:string" minOccurs="0"/>
+                <xs:element name="readAndAccepted" type="xs:boolean"/>
+                <xs:element name="securityDomain" type="xs:string"/>
+                <xs:element name="attendanceEmail" type="xs:string"/>
+                <xs:element name="additionalComment" type="xs:string" minOccurs="0"/>
+            </xs:sequence>
+            <xs:attribute ref="xfa:dataNode" use="required" fixed="dataGroup"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

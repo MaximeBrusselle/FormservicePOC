@@ -1,0 +1,23 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Card from "@/components/Card.astro";
+import { getCollection, type CollectionEntry } from "astro:content";
+
+const allCustomers: CollectionEntry<"customers">[] = await getCollection("customers");
+---
+
+<Layout title="Customer Overview">
+	<main class="mx-auto p-4 max-w-[800px] text-white text-xl leading-relaxed">
+		<h1 class="text-6xl font-bold leading-none text-center mb-8">Welcome to customer <span class="text-gradient">Overview</span></h1>
+		<p class="instructions text-center">
+			To get started, choose a customer from the list below.<br />
+			<strong>Note:</strong> Only Pictet has a valid form.
+		</p>
+
+		<ul role="list" class="grid gap-4 md:grid-cols-2">
+			{allCustomers.map((customer) => <Card href={`/customers/${customer.slug}`} title={customer.data.name} body={customer.data.description} />)}
+		</ul>
+	</main>
+</Layout>
+
+<style></style>

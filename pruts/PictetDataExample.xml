@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Pictet xmlns:xfa="http://www.xfa.org/schema/xfa-data/1.0/" xfa:dataNode="dataGroup">
+    <participant>John Doe</participant>
+    <createdOn>2024-03-20</createdOn>
+    <courseType>Technical</courseType>
+    <courseName>Advanced JavaScript Development</courseName>
+    <courseCost>2500</courseCost>
+    <costCurrency>CHF</costCurrency>
+    <onlyStartEndDates>1</onlyStartEndDates>
+    <courseStartDate>2024-04-01</courseStartDate>
+    <courseEndDate>2024-04-05</courseEndDate>
+    <durationDays>5</durationDays>
+    <durationHours>40</durationHours>
+    <schoolName>Tech Academy</schoolName>
+    <otherSchoolName></otherSchoolName>
+    <programme>Professional Development</programme>
+    <otherProgramme></otherProgramme>
+    <grantCertificate>true</grantCertificate>
+    <SAQCode>SAQ12345</SAQCode>
+    <courseTheme>Web Development</courseTheme>
+    <contribution>100</contribution>
+    <allocatedWorkdays>2</allocatedWorkdays>
+    <comment>This is a comprehensive JavaScript course focusing on modern development practices.</comment>
+    <readAndAccepted>true</readAndAccepted>
+    <securityDomain>IT</securityDomain>
+    <attendanceEmail>john.doe@pictet.com</attendanceEmail>
+    <additionalComment>Participant has prior experience in basic JavaScript.</additionalComment>
+</Pictet>

@@ -5,8 +5,8 @@ interface Props {
 
 const { title } = Astro.props;
 const currentPath = Astro.url.pathname;
-const segments = currentPath.split('/').filter(Boolean);
-const isBaseUrl = currentPath === '/';
+const segments = currentPath.split("/").filter(Boolean);
+const isBaseUrl = currentPath === "/";
 ---
 
 <!doctype html>
@@ -21,25 +21,27 @@ const isBaseUrl = currentPath === '/';
 	</head>
 	<body>
 		<div class="p-4">
-			{!isBaseUrl && (
-				<div class="flex items-center gap-4 mb-4">
-					<a href="javascript:history.back()" class="btn btn-ghost">
-						← Back
-					</a>
-					<div class="breadcrumbs text-sm">
-						<ul>
-							<li><a href="/">Home</a></li>
-							{segments.map((segment, index) => (
+			{
+				!isBaseUrl && (
+					<div class="flex items-center gap-4 mb-4">
+						<a href="javascript:history.back()" class="btn btn-ghost">
+							← Back
+						</a>
+						<div class="breadcrumbs text-sm">
+							<ul>
 								<li>
-									<a href={`/${segments.slice(0, index + 1).join('/')}`}>
-										{segment.charAt(0).toUpperCase() + segment.slice(1)}
-									</a>
+									<a href="/">Home</a>
 								</li>
-							))}
-						</ul>
+								{segments.map((segment, index) => (
+									<li>
+										<a href={`/${segments.slice(0, index + 1).join("/")}`}>{segment.charAt(0).toUpperCase() + segment.slice(1)}</a>
+									</li>
+								))}
+							</ul>
+						</div>
 					</div>
-				</div>
-			)}
+				)
+			}
 			<slot />
 		</div>
 	</body>
@@ -49,12 +51,7 @@ const isBaseUrl = currentPath === '/';
 		--accent: 136, 58, 234;
 		--accent-light: 224, 204, 250;
 		--accent-dark: 49, 10, 101;
-		--accent-gradient: linear-gradient(
-			45deg,
-			rgb(var(--accent)),
-			rgb(var(--accent-light)) 30%,
-			white 60%
-		);
+		--accent-gradient: linear-gradient(45deg, rgb(var(--accent)), rgb(var(--accent-light)) 30%, white 60%);
 	}
 	html {
 		font-family: system-ui, sans-serif;
@@ -70,5 +67,31 @@ const isBaseUrl = currentPath === '/';
 			Bitstream Vera Sans Mono,
 			Courier New,
 			monospace;
+	}
+	.text-gradient {
+		background-image: var(--accent-gradient);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		background-size: 400%;
+		background-position: 0%;
+	}
+
+	.instructions {
+		margin-bottom: 2rem;
+		border: 1px solid rgba(var(--accent-light), 25%);
+		background: linear-gradient(rgba(var(--accent-dark), 66%), rgba(var(--accent-dark), 33%));
+		padding: 1.5rem;
+		border-radius: 8px;
+	}
+	.instructions code {
+		font-size: 0.8em;
+		font-weight: bold;
+		background: rgba(var(--accent-light), 12%);
+		color: rgb(var(--accent-light));
+		border-radius: 4px;
+		padding: 0.3em 0.4em;
+	}
+	.instructions strong {
+		color: rgb(var(--accent-light));
 	}
 </style>
